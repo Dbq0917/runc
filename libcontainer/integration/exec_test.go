@@ -283,6 +283,7 @@ func TestProcessEmptyCaps(t *testing.T) {
 
 	config := newTemplateConfig(t, nil)
 	config.Capabilities = nil
+	config.NoNewPrivileges = true
 
 	container, err := newContainer(t, config)
 	ok(t, err)
@@ -308,17 +309,22 @@ func TestProcessEmptyCaps(t *testing.T) {
 
 	lines := strings.Split(outputStatus, "\n")
 
-	effectiveCapsLine := ""
-	for _, l := range lines {
-		line := strings.TrimSpace(l)
-		if strings.Contains(line, "CapEff:") {
-			effectiveCapsLine = line
-			break
+	for _, field := range []string{"CapInh", "CapPrm", "CapEff", "CapBnd", "CapAmb"} {
+		expected := field + ":\t0000000000000000"
+		found := false
+		for _, line := range lines {
+			if strings.TrimSpace(line) == expected {
+				found = true
+				break
+			}
+		}
+		if !found {
+			t.Errorf("expected %s to be empty, got status:\n%s", field, outputStatus)
 		}
 	}
 
-	if effectiveCapsLine == "" {
-		t.Fatal("Couldn't find effective caps: ", outputStatus)
+	if !strings.Contains(outputStatus, "NoNewPrivs:\t1") {
+		t.Error("expected NoNewPrivs to be set")
 	}
 }
 

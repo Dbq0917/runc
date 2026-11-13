@@ -19,6 +19,19 @@ function teardown() {
 	assert_output --partial "NoNewPrivs:	1"
 }
 
+@test "runc run without capabilities config" {
+	update_config 'del(.process.capabilities)'
+	update_config '.process.noNewPrivileges = true'
+	run -0 runc run test_no_caps_config
+
+	assert_output --partial "CapInh:	0000000000000000"
+	assert_output --partial "CapPrm:	0000000000000000"
+	assert_output --partial "CapEff:	0000000000000000"
+	assert_output --partial "CapBnd:	0000000000000000"
+	assert_output --partial "CapAmb:	0000000000000000"
+	assert_output --partial "NoNewPrivs:	1"
+}
+
 @test "runc run with unknown capability" {
 	update_config '.process.capabilities.bounding = ["CAP_UNKNOWN", "UNKNOWN_CAP"]'
 	run -0 runc run test_unknown_caps

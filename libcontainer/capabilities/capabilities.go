@@ -44,13 +44,14 @@ func KnownCapabilities() []string {
 	return res
 }
 
-// New creates a new Caps from the given Capabilities config. Unknown Capabilities
-// or Capabilities that are unavailable in the current environment are ignored,
-// printing a warning instead.
+// New creates a new Caps from the given Capabilities config. If capConfig is
+// nil, all capability sets are empty. Unknown Capabilities or Capabilities that
+// are unavailable in the current environment are ignored, printing a warning
+// instead.
 func New(capConfig *configs.Capabilities) (*Caps, error) {
 	var c Caps
 	if capConfig == nil {
-		return &c, nil
+		capConfig = &configs.Capabilities{}
 	}
 
 	_, err := capMap()

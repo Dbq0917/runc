@@ -77,3 +77,18 @@ func TestNew(t *testing.T) {
 
 	hook.Reset()
 }
+
+func TestNewNil(t *testing.T) {
+	caps, err := New(nil)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if caps.pid == nil {
+		t.Fatal("expected a capability set for the current process")
+	}
+	for _, cType := range capTypes {
+		if len(caps.caps[cType]) != 0 {
+			t.Errorf("expected no %s capabilities, got %v", cType, caps.caps[cType])
+		}
+	}
+}
